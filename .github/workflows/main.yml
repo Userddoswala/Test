@@ -1,23 +1,25 @@
-name: Windows RDP - LocalXpose
+name: Windows RDP - Cloudflare
 on: workflow_dispatch
 
 jobs:
   rdp:
     runs-on: windows-latest
-    timeout-minutes: 360  # GitHub ka limit 6 hours
+    timeout-minutes: 360
     steps:
-      - name: Download LocalXpose
+      - name: Download Cloudflared
         run: |
-          Invoke-WebRequest -Uri "https://github.com/localxpose/loclx/releases/latest/download/loclx-windows-amd64.zip" -OutFile "loclx.zip"
-          Expand-Archive loclx.zip -Force
-          
-      - name: Setup RDP
+          Invoke-WebRequest -Uri "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe" -OutFile "cloudflared.exe"
+      
+      - name: Enable RDP
         run: |
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          
+      - name: Create User
+        run: |
           net user adminuser SecurePass123! /add
           net localgroup administrators adminuser /add
           
       - name: Start Tunnel
         run: |
-          .\loclx\loclx.exe tunnel tcp --port 3389
+          .\cloudflared.exe tunnel --url rdp://localhost:3389
