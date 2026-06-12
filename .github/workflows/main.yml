@@ -1,4 +1,4 @@
-name: Windows RDP - Playit
+name: Windows RDP - Bore
 on: workflow_dispatch
 
 jobs:
@@ -6,9 +6,9 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 360
     steps:
-      - name: Download Playit
+      - name: Download Bore
         run: |
-          Invoke-WebRequest -Uri "https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-windows-amd64.exe" -OutFile "playit.exe"
+          curl -L -o bore.exe https://github.com/ekzhang/bore/releases/download/v0.5.0/bore.exe
           
       - name: Setup RDP
         run: |
@@ -17,6 +17,12 @@ jobs:
           net user adminuser SecurePass123! /add
           net localgroup administrators adminuser /add
           
-      - name: Start Tunnel
+      - name: Start Bore Tunnel
         run: |
-          .\playit.exe --secret your-secret-here
+          Write-Host "========================================="
+          Write-Host "🔵 BORE TUNNEL STARTING"
+          Write-Host "📡 Connect to: bore.pub:<PORT>"
+          Write-Host "🔑 Username: adminuser"
+          Write-Host "🔑 Password: SecurePass123!"
+          Write-Host "========================================="
+          .\bore.exe local 3389 --to bore.pub
