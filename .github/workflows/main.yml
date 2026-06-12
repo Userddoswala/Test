@@ -14,6 +14,7 @@ jobs:
         run: |
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 0
           
       - name: Create User
         run: |
@@ -21,6 +22,7 @@ jobs:
           net localgroup administrators adminuser /add
           net localgroup "Remote Desktop Users" adminuser /add
           
-      - name: Start TCP Tunnel for RDP
+      - name: Start RDP Tunnel (TCP)
         run: |
-          .\cloudflared.exe tunnel --url rdp://localhost:3389
+          Write-Host "Starting TCP tunnel for RDP on port 3389..."
+          .\cloudflared.exe tunnel --url tcp://localhost:3389 --protocol http2 --log-level debug
