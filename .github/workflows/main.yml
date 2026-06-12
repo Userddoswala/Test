@@ -1,22 +1,23 @@
-name: Windows RDP - Bore
+name: Windows RDP - LocalXpose
 on: workflow_dispatch
 
 jobs:
   rdp:
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 360  # GitHub ka limit 6 hours
     steps:
-      - name: Download Bore
+      - name: Download LocalXpose
         run: |
-          Invoke-WebRequest -Uri "https://github.com/ekzhang/bore/releases/latest/download/bore.exe" -OutFile "bore.exe"
+          Invoke-WebRequest -Uri "https://github.com/localxpose/loclx/releases/latest/download/loclx-windows-amd64.zip" -OutFile "loclx.zip"
+          Expand-Archive loclx.zip -Force
           
-      - name: Enable RDP
+      - name: Setup RDP
         run: |
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
           net user adminuser SecurePass123! /add
           net localgroup administrators adminuser /add
           
-      - name: Start Bore Tunnel
+      - name: Start Tunnel
         run: |
-          .\bore.exe local 3389 --to bore.pub
+          .\loclx\loclx.exe tunnel tcp --port 3389
