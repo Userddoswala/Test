@@ -1,32 +1,30 @@
 name: Windows RDP - Cloudflare
-
-on: 
-  workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
   rdp:
     runs-on: windows-latest
     timeout-minutes: 360
-    
     steps:
-    - name: Download Cloudflare Tunnel
-      run: |
-        Invoke-WebRequest -Uri "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe" -OutFile "cloudflared.exe"
-        
-    - name: Enable RDP
-      run: |
-        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
-        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 0
-        
-    - name: Create Admin User
-      run: |
-        $password = ConvertTo-SecureString "YourPassword123!" -AsPlainText -Force
-        New-LocalUser -Name "adminuser" -Password $password -FullName "Admin" -Description "RDP Access"
-        Add-LocalGroupMember -Group "Administrators" -Member "adminuser"
-        Add-LocalGroupMember -Group "Remote Desktop Users" -Member "adminuser"
-        
-    - name: Start RDP Tunnel
-      run: |
-        # Ye sabse important step - tunnel start karo
-        .\cloudflared.exe tunnel --url tcp://localhost:3389 --metrics localhost:45678
+      - name: Download Cloudflare Tunnel
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe" -OutFile "cloudflared.exe"
+      
+      - name: Enable RDP
+        run: |
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 0
+      
+      - name: Create Admin User
+        run: |
+          $password = ConvertTo-SecureString "Admin@RDP#2026$Secure!9xZ" -AsPlainText -Force
+          New-LocalUser -Name "adminuser" -Password $password -FullName "Admin" -Description "RDP Access"
+          Add-LocalGroupMember -Group "Administrators" -Member "adminuser"
+          Add-LocalGroupMember -Group "Remote Desktop Users" -Member "adminuser"
+      
+      - name: Start RDP Tunnel
+        run: |
+          Write-Host "Starting Cloudflare Tunnel (No account needed)..."
+          Write-Host "Look for: INF Your tunnel URL: tcp://xxxx.trycloudflare.com:port"
+          .\cloudflared.exe tunnel --url tcp://localhost:3389 --metrics localhost:45678
