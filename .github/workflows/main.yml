@@ -18,13 +18,13 @@ jobs:
       
       - name: Create Admin User
         run: |
-          $password = ConvertTo-SecureString "Admin@RDP#2026$Secure!9xZ" -AsPlainText -Force
+          $password = ConvertTo-SecureString "SecurePass123!" -AsPlainText -Force
           New-LocalUser -Name "adminuser" -Password $password -FullName "Admin" -Description "RDP Access"
           Add-LocalGroupMember -Group "Administrators" -Member "adminuser"
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member "adminuser"
       
       - name: Start RDP Tunnel
         run: |
-          Write-Host "Starting Cloudflare Tunnel (No account needed)..."
-          Write-Host "Look for: INF Your tunnel URL: tcp://xxxx.trycloudflare.com:port"
-          .\cloudflared.exe tunnel --url tcp://localhost:3389 --metrics localhost:45678
+          Write-Host "Starting Cloudflare Tunnel..."
+          Write-Host "Look for: INF Your tunnel URL"
+          .\cloudflared.exe tunnel --url tcp://localhost:3389
