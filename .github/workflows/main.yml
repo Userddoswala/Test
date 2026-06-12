@@ -1,4 +1,4 @@
-name: Windows RDP - Cloudflare
+name: Windows RDP - Bore
 on: workflow_dispatch
 
 jobs:
@@ -6,22 +6,17 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 360
     steps:
-      - name: Download Cloudflared
+      - name: Download Bore
         run: |
-          Invoke-WebRequest -Uri "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe" -OutFile "cloudflared.exe"
-      
+          Invoke-WebRequest -Uri "https://github.com/ekzhang/bore/releases/latest/download/bore.exe" -OutFile "bore.exe"
+          
       - name: Enable RDP
         run: |
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 0
-          
-      - name: Create User
-        run: |
           net user adminuser SecurePass123! /add
           net localgroup administrators adminuser /add
-          net localgroup "Remote Desktop Users" adminuser /add
-      
-      - name: Start Tunnel
+          
+      - name: Start Bore Tunnel
         run: |
-          .\cloudflared.exe tunnel --url rdp://localhost:3389
+          .\bore.exe local 3389 --to bore.pub
