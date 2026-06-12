@@ -1,4 +1,4 @@
-name: Windows RDP - Cloudflare
+name: Windows RDP - Playit
 on: workflow_dispatch
 
 jobs:
@@ -6,20 +6,17 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 360
     steps:
-      - name: Download Cloudflared
+      - name: Download Playit
         run: |
-          Invoke-WebRequest -Uri "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe" -OutFile "cloudflared.exe"
-      
-      - name: Enable RDP
+          Invoke-WebRequest -Uri "https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-windows-amd64.exe" -OutFile "playit.exe"
+          
+      - name: Setup RDP
         run: |
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-          
-      - name: Create User
-        run: |
           net user adminuser SecurePass123! /add
           net localgroup administrators adminuser /add
           
       - name: Start Tunnel
         run: |
-          .\cloudflared.exe tunnel --url rdp://localhost:3389
+          .\playit.exe --secret your-secret-here
